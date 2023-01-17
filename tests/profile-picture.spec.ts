@@ -2,8 +2,12 @@ import * as anchor from "@project-serum/anchor";
 import { Program, getProvider, AnchorProvider } from "@project-serum/anchor";
 import { ProfilePicture } from "../target/types/profile_picture";
 import { PublicKey } from "@solana/web3.js";
-import { getOrCreateAssociatedTokenAccount, createMint } from "@solana/spl-token";
+import {
+  getOrCreateAssociatedTokenAccount,
+  createMint,
+} from "@solana/spl-token";
 import NodeWallet from "@project-serum/anchor/dist/cjs/nodewallet";
+import { CreateNftInput, Metaplex, toBigNumber } from "@metaplex-foundation/js";
 
 describe("profile-picture", () => {
   // Configure the client to use the local cluster.
@@ -31,6 +35,24 @@ describe("profile-picture", () => {
 
     const { connection } = getProvider();
 
+    // const metaplex = new Metaplex(connection);
+
+    // const input: CreateNftInput = {
+    //   name: "My NFT",
+    //   symbol: "MYNFT",
+    //   uri: "https://arweave.net/...",
+    //   sellerFeeBasisPoints: 100,
+    //   maxSupply: toBigNumber(1),
+    //   creators: [
+    //     {
+    //       address: wallet.publicKey,
+    //       share: 100,
+    //     },
+    //   ],
+    // };
+
+    // const { mintAddress: mint } = await metaplex.nfts().create(input);
+
     const mint = await createMint(
       connection,
       wallet.payer,
@@ -48,7 +70,6 @@ describe("profile-picture", () => {
 
     console.log("tokenAccount", tokenAccount);
 
-
     const tx = await program.methods
       .initialize()
       .accounts({
@@ -59,7 +80,15 @@ describe("profile-picture", () => {
 
     console.log("Your transaction signature", tx);
 
+    const { pfp } = await program.account.user.fetch(user);
 
-    const a = await program.account.user.fetch(user)
+    /**
+     * Get metadata from mint/pfp
+     */
+    // const metadata = await metaplex.nfts().findByMetadata({
+    //   metadata: pfp,
+    // });
+
+    console.log(">>>", { pfp });
   });
 });
